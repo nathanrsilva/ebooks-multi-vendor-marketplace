@@ -6,5 +6,5 @@ export const merchanteRegister = async (req: Request, res: Response) => {
 
     const accountLink = await registerMerchantService({ email, password });
 
-    res.redirect(accountLink);
+    res.status(201).json({ message: 'Merchant created successfully' });
 }
