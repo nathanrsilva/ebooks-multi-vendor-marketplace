@@ -7,7 +7,7 @@ export const validateBodyRegister = async (req: Request, res: Response, next: Ne
     const result = MerchantRegisterSchema.safeParse(req.body);
 
     if (!result.success) {
-        throw new AppError('Invalid request body data', 400);
+        throw new AppError('Invalid request body data', 400, result.error.issues);
     }
 
     next();
@@ -19,7 +19,7 @@ export const validateLoginRegister = async (req: Request, res: Response, next: N
     const result = MerchantLoginSchema.safeParse(req.body);
 
     if (!result.success) {
-        throw new AppError('Invalid request body data', 400);
+        throw new AppError('Invalid request body data', 400, result.error.issues);
     }
 
     next();

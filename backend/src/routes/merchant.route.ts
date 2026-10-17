@@ -4,8 +4,8 @@ import { merchanteRegister } from '../controllers/auth.controller.js';
 import { validateBodyRegister } from '../middlewares/auth.middleware.js';
 import { asyncHandler } from '../errors/errors.js';
 
-const merchantRoute: Router = express.Router();
+const merchantRouter: Router = express.Router();
 
-merchantRoute.post('/register', validateBodyRegister, asyncHandler(merchanteRegister))
+merchantRouter.post('/register', validateBodyRegister, asyncHandler(merchanteRegister))
 
-export default merchantRoute;
+export default merchantRouter;
