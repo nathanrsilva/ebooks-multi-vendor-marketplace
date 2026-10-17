@@ -1,7 +1,7 @@
 import Stripe from 'stripe'
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
-export const stripeNewMerchant = async (email: string) => {
+export const stripeNewMerchant = async (email: string): Promise<string> => {
     const merchantAccount = await stripe.v2.core.accounts.create({
         display_name: email,
         contact_email: email,
@@ -30,7 +30,7 @@ export const stripeNewMerchant = async (email: string) => {
     return merchantAccount.id;
 }
 
-export const accountOnboarding = async (accountId: string) => {
+export const accountOnboarding = async (accountId: string): Promise<string> => {
     const accountLink = await stripe.v2.core.accountLinks.create({
         account: accountId,
         use_case: {

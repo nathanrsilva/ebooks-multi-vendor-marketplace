@@ -12,7 +12,7 @@ import {
 import type { Owner, Bucket, _Object } from "@aws-sdk/client-s3"
 
 const client = new S3Client({
-    region: 'us-east-2',
+    region: process.env.AWS_REGION!,
     credentials: {
         accessKeyId: process.env.AWS_ACCESS_KEY_ID!,
         secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY!
@@ -24,46 +24,40 @@ export const listBuckets = async () => {
 
     const buckets: Bucket[] = [];
 
-    try {
-        const paginator = paginateListBuckets({ client }, {});
+    const paginator = paginateListBuckets({ client }, {});
 
-        for await (const page of paginator) {
-            if (!owner) {
-                owner = page.Owner;
-            }
-
-            buckets.push(...(page.Buckets ?? []));
+    for await (const page of paginator) {
+        if (!owner) {
+            owner = page.Owner;
         }
 
-        console.log(buckets);
-    } catch (error: unknown) {
-        if (error instanceof S3ServiceException) {
-            console.error(
-                `Error from S3: ${error.name}: ${error.message}`,
-            );
-        } else {
-            throw error;
-        }
+        buckets.push(...(page.Buckets ?? []));
     }
 }
 
 export const listFilesInBucket = async () => {
     const objects: _Object[] = [];
 
-    try {
-
-        const paginator = paginateListObjectsV2({ client }, { Bucket: process.env.S3_BUCKET_NAME })
-        for await (const page of paginator) {
-            objects.push(...page.Contents ?? []);
-        }
-
-        console.log(objects);
-
-    } catch (error) {
-        if (error instanceof S3ServiceException) {
-            console.error(`S3 error: ${error.name}: ${error.message}`,)
-        }
-        throw error;
+    const paginator = paginateListObjectsV2({ client }, { Bucket: process.env.S3_BUCKET_NAME })
+    for await (const page of paginator) {
+        objects.push(...page.Contents ?? []);
     }
+}
+
+export const uploadToS3 = async (file: Express.Multer.File, merchantId: string) => {
+    const fileExtension = file.originalname.split('.').pop();
+    const fileName = `users/${merchantId}/${file.fieldname}-${Date.now()}.${fileExtension}`;
+
+    const command = new PutObjectCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: fileName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+    })
+
+    const response = await client.send(command);
+    console.log(response);
+
+    return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 }
 
