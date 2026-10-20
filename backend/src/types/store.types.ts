@@ -1,8 +1,8 @@
 export type Store = {
     name: string;
     description: string;
-    photo: string;
-    banner: string;
+    photo_url: string;
+    banner_url: string;
     merchant_id: string;
 }
 
@@ -17,5 +17,4 @@ export type CreateStoreProps = {
 export type CreateStoreRequestBody = {
     store_name: string;
     store_description: string;
-    merchant_id: string
 }

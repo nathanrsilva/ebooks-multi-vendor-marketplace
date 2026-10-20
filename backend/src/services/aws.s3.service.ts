@@ -10,6 +10,7 @@ import {
 } from "@aws-sdk/client-s3";
 
 import type { Owner, Bucket, _Object } from "@aws-sdk/client-s3"
+import AppError from "../errors/AppError.js";
 
 const client = new S3Client({
     region: process.env.AWS_REGION!,
@@ -44,9 +45,24 @@ export const listFilesInBucket = async () => {
     }
 }
 
-export const uploadToS3 = async (file: Express.Multer.File, merchantId: string) => {
+export const uploadToS3 = async (file: Express.Multer.File, merchantId: string, type: 'store' | 'ebook') => {
     const fileExtension = file.originalname.split('.').pop();
-    const fileName = `users/${merchantId}/${file.fieldname}-${Date.now()}.${fileExtension}`;
+
+    const storePath = `stores/${merchantId}/${file.fieldname}-${Date.now()}.${fileExtension}`;
+    const eBookPath = `ebooks/${merchantId}/${file.fieldname}-${Date.now()}.${fileExtension}`;
+    let fileName;
+
+
+    switch (type) {
+        case 'store':
+            fileName = storePath;
+            break;
+        case 'ebook':
+            fileName = eBookPath;
+            break;
+        default:
+            throw new AppError('Type have to be "store" or "ebook"', 400);
+    }
 
     const command = new PutObjectCommand({
         Bucket: process.env.S3_BUCKET_NAME,
