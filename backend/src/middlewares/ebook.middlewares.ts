@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from "express";
-import { EbookDetailsSchema, UploadEbookCoverSchema } from "../schemas/ebook.schemas.js";
+import { DeleteEbookParamsSchema, EbookDetailsSchema, UploadEbookCoverSchema } from "../schemas/ebook.schemas.js";
 import AppError from "../errors/AppError.js";
 
 export const createEbookValidateBody = async (req: Request, res: Response, next: NextFunction) => {
@@ -15,5 +15,11 @@ export const createEbookValidateBody = async (req: Request, res: Response, next:
     }
 
     req.validatedEbookCoverFile = ebookCoverResult.data;
+    next();
+}
+
+export const deleteEbookValidateParams = async (req: Request, res: Response, next: NextFunction) => {
+    const ebookParamsResult = DeleteEbookParamsSchema.safeParse(req.params);
+    if (!ebookParamsResult.success) throw new AppError('Invalid ebookId parameter', 400);
     next();
 }

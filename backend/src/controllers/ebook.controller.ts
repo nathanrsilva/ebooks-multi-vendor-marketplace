@@ -1,6 +1,6 @@
 import type { Request, Response } from 'express';
 import { uploadToS3 } from '../services/aws.s3.service.js';
-import { createEbookService } from '../services/ebook.service.js';
+import { createEbookService, deleteEbookService } from '../services/ebook.service.js';
 import type { CreateProduct } from '../types/product.types.js';
 
 export const createEbook = async (req: Request<{}, unknown, CreateProduct>, res: Response) => {
@@ -28,4 +28,14 @@ export const createEbook = async (req: Request<{}, unknown, CreateProduct>, res:
     });
 
     return res.status(201).json({ data: newEbook });
+}
+
+export const deleteEbook = async (req: Request<{ ebookId: string }>, res: Response) => {
+    const { ebookId } = req.params;
+
+    const merchantId = req.merchant!.id;
+    const stripeAccountId = req.merchant!.accountId;
+
+    const deletedEbook = await deleteEbookService(ebookId, stripeAccountId, merchantId);
+    res.status(200).json({ deletedEbook });
 }

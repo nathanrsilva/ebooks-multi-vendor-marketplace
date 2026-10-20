@@ -1,9 +1,10 @@
 import { randomUUIDv7 } from 'node:crypto';
-import { existsEbookByName, newEbook } from '../models/ebook.model.js';
-import { checkMerchantReady, createProductAndPriceService } from './stripe.service.js';
+import { deleteEbookById, existsEbookByName, findEbookByMerchantAndStoreId, newEbook } from '../models/ebook.model.js';
+import { archiveProductService, checkMerchantReady, createProductAndPriceService } from './stripe.service.js';
 import AppError from '../errors/AppError.js';
 import { findStoreByMerchantId } from '../models/store.model.js';
 import type { CreateEbook } from '../types/ebook.types.js';
+import { deleteObjectsService } from './aws.s3.service.js';
 
 export const createEbookService = async (ebookProps: CreateEbook) => {
     const {
@@ -57,4 +58,15 @@ export const createEbookService = async (ebookProps: CreateEbook) => {
     return createdEbook;
 }
 
-export const deleteEbookService = async () => { }
+export const deleteEbookService = async (ebookId: string, account_id: string, merchant_id: string) => {
+    const selectedEbook = await findEbookByMerchantAndStoreId(ebookId, merchant_id);
+    if (!selectedEbook) throw new AppError(`Merchant ${merchant_id} does not have the Ebook with id: ${ebookId}`, 404)
+
+    await archiveProductService(selectedEbook.product_id, account_id);
+
+    // deletar os arquivos no aws
+    await deleteObjectsService([selectedEbook.cover_url]);
+
+    const deletedEbook = await deleteEbookById(ebookId);
+    return deletedEbook;
+}   
