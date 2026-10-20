@@ -7,6 +7,8 @@ import {
     paginateListBuckets,
     S3ServiceException,
     ListObjectsCommand,
+    DeleteObjectsCommand,
+    waitUntilObjectNotExists,
 } from "@aws-sdk/client-s3";
 
 import type { Owner, Bucket, _Object } from "@aws-sdk/client-s3"
@@ -72,8 +74,30 @@ export const uploadToS3 = async (file: Express.Multer.File, merchantId: string, 
     })
 
     const response = await client.send(command);
-    console.log(response);
-
     return `https://${process.env.S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileName}`;
 }
+
+export const deleteObjectsService = async (fileUrls: string[]) => {
+    if (!fileUrls || fileUrls.length === 0) {
+        return { message: "No files to delete" };
+    }
+
+    const objectsToDelete = fileUrls.map((url) => {
+        const parsedURL = new URL(url);
+        const key = parsedURL.pathname.startsWith('/') ? parsedURL.pathname.substring(1) : parsedURL.pathname;
+        return { Key: key }
+    })
+
+    const command = new DeleteObjectsCommand({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Delete: {
+            Objects: objectsToDelete,
+            Quiet: false
+            // Se true, o S3 só retorna resposta em caso de erro. Se false, retorna o que foi deletado com sucesso.
+        },
+    });
+
+    const response = await client.send(command);
+    return response.Deleted;
+};
 

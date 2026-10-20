@@ -29,5 +29,9 @@ export const EbookDetailsSchema = z.object({
 
 export type UploadEbookCover = z.infer<typeof UploadEbookCoverSchema>;
 
+export const DeleteEbookParamsSchema = z.object({
+    ebookId: z.uuid()
+})
+
 
 

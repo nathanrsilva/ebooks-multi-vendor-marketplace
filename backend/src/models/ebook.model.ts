@@ -25,6 +25,24 @@ export const newEbook = async (newEbookProps: NewEbook): Promise<Ebook | null> =
     return result.rows[0] ?? null;
 }
 
+export const deleteEbookById = async (ebookId: string): Promise<Ebook | null> => {
+    const query = `DELETE FROM ebook WHERE id = $1 RETURNING *`;
+    const result = await pool.query(query, [ebookId]);
+    return result.rows[0] ?? null;
+}
+
+export const findEbookByMerchantAndStoreId = async (ebookId: string, storeId: string): Promise<Ebook | null> => {
+    const query = `SELECT * FROM ebook WHERE id = $1 AND store_id = $2`;
+    const result = await pool.query(query, [ebookId, storeId]);
+    return result.rows[0] ?? null;
+}
+
+export const findEbookById = async (ebookId: string): Promise<Ebook | null> => {
+    const query = `SELECT * FROM ebook WHERE id = $1`;
+    const result = await pool.query(query, [ebookId]);
+    return result.rows[0] ?? null;
+}
+
 export const existsEbookByName = async (storeId: string, name: string) => {
     const query = `
         SELECT 1 FROM ebook 

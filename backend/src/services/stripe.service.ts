@@ -99,4 +99,12 @@ export const checkMerchantReady = async (accountId: string) => {
     return cardPaymentStatus === 'active' && hasNoPendingEntries;
 }
 
+export const archiveProductService = async (productId: string, account_id: string) => {
+    const updatedProduct = await stripe.products.update(productId, {
+        active: false,
+    }, { stripeContext: account_id });
+
+    return updatedProduct;
+}
+
 export const deleteProductAndPriceService = async () => { }
