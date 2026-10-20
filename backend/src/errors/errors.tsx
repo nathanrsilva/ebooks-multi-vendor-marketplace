@@ -16,8 +16,7 @@ export const errorHandler = (error: Error, req: Request, res: Response, next: Ne
             details: error.Formatter
         });
     } else if (error instanceof multer.MulterError && error.code === 'LIMIT_UNEXPECTED_FILE') {
-
-        return res.status(400).json({ error: `Just one file is allowed for the ${error.field} field` });
+        return res.status(400).json({ error: `Only one image file is allowed for the ${error.field} field` });
     }
 
     return res.status(500).json({ error: 'Internal Server Error' });

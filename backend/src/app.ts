@@ -1,17 +1,24 @@
-import express from 'express';
 import type { Express, Request, Response } from 'express'
+
+import express from 'express';
 import { pool } from './config/db.config.js';
-import merchantRouter from './routes/merchant.route.js';
 import { errorHandler } from './errors/errors.js';
+import { validateTokenMerchantAuth } from './middlewares/auth.middlewares.js';
+
 import storeRouter from './routes/store.route.js';
+import ebookRouter from './routes/ebook.route.js';
+import cookieParser from 'cookie-parser';
+import merchantRouter from './routes/merchant.route.js';
 
 // Setup
 const app: Express = express();
 app.use(express.json());
+app.use(cookieParser());
 
 // Routers
 app.use('/merchant', merchantRouter);
-app.use('/store', storeRouter);
+app.use('/store', validateTokenMerchantAuth, storeRouter);
+app.use('/ebook', validateTokenMerchantAuth, ebookRouter);
 
 app.get('/', async (req: Request, res: Response) => {
     const result = await pool.query('SELECT NOW()');

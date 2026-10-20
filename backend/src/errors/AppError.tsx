@@ -20,7 +20,9 @@ export default class AppError extends Error {
 
     private zodFieldsFormatter(): void {
         if (!this.zodFields || this.zodFields.length === 0) return;
-        this.formatter = this.zodFields.map(field => `${field.path}: ${field.message}`);
+        this.formatter = this.zodFields.map(
+            field => `${field.path.join('').replace('0', '')}: ${field.message}`
+        );
     }
 
     public get StatusCode(): number {
